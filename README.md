@@ -1,50 +1,102 @@
-# React + TypeScript + Vite
+# Chrome Extension Boilerplate
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern Chrome extension boilerplate built with TypeScript, React, and Tailwind CSS, featuring a clean and maintainable architecture.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Modern Tech Stack**
+  - TypeScript for type safety and better developer experience
+  - React for building interactive UI components
+  - Tailwind CSS for styling
+  - Manifest V3 compliant
 
-## Expanding the ESLint configuration
+- **Core Components**
+  - Popup interface with analyze and clear functionality
+  - Content script for webpage interaction
+  - Background service worker for extension management
+  - UI components using shadcn/ui
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **Developer Experience**
+  - Hot Module Replacement (HMR) support
+  - Clean architecture with separated concerns
+  - Built-in console logging for debugging
 
-- Configure the top-level `parserOptions` property like this:
+## 🛠️ Technical Architecture
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+### 1. Popup (App.tsx)
+- Main interface built with React
+- Features:
+  - Page analysis trigger
+  - Clear analysis function
+  - Responsive UI with Tailwind CSS
+  - Integration with Chrome extension APIs
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### 2. Content Script (content.ts)
+- Injects into web pages
+- Functionality:
+  - Page analysis capabilities
+  - Communication with popup and background script
+  - DOM manipulation and data extraction
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+### 3. Background Script (background.ts)
+- Service worker implementation
+- Features:
+  - Badge management
+  - Notification system
+  - Message handling between components
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+### 4. Manifest (manifest.json)
+- Extension configuration
+- Permissions:
+  - activeTab
+  - scripting
+  - notifications
+- Asset definitions and content script injection rules
+
+## 🔧 Installation
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Build the extension:
+   ```bash
+   npm run build
+   ```
+4. Load the extension in Chrome:
+   - Open Chrome and navigate to `chrome://extensions/`
+   - Enable "Developer mode"
+   - Click "Load unpacked"
+   - Select the `dist` directory
+
+## 💻 Development
+
+- Start development server:
+  ```bash
+  npm run dev
+  ```
+- The extension will auto-reload when you make changes
+- Check console logs in:
+  - Popup DevTools
+  - Background script console
+  - Webpage console (for content script logs)
+
+## 🔐 Permissions
+
+This extension requires the following permissions:
+- `activeTab`: For accessing the current tab's content
+- `scripting`: For injecting content scripts
+- `notifications`: For sending system notifications
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
