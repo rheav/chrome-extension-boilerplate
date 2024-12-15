@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Chrome Extension Boilerplate",
+  "version": "1.0.0",
+  "description": "A modern Chrome extension boilerplate with TypeScript and React",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "notifications"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "38": "logos/icon38.png",
+      "48": "logos/icon48.png",
+      "128": "logos/icon128.png"
+    },
+    "default_title": "Chrome Extension"
+  },
+  "icons": {
+    "38": "logos/icon38.png",
+    "48": "logos/icon48.png",
+    "128": "logos/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}
