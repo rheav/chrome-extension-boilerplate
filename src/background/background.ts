@@ -1,27 +1,37 @@
-console.log("Background script loaded");
+// Log when background script is loaded
+console.log("Background script loaded and running");
 
 // Listen for messages from content script
-chrome.runtime.onMessage.addListener((message, sender) => {
-  if (message.type === "CONTENT_SCRIPT_LOADED") {
+chrome.runtime.onMessage.addListener((message) => {
+  console.log("Background received message:", message.type);
+  
+  if (message.type === "CONTENT_SCRIPT_LOADED" && message.tabId) {
     // Update extension badge
     chrome.action.setBadgeText({
-      tabId: sender.tab?.id,
-      text: "ON"
+      tabId: message.tabId,
+      text: "OK"
     });
 
     chrome.action.setBadgeBackgroundColor({
       color: "#4CAF50"
     });
 
-    // Send notification
-    chrome.notifications.create({
-      type: "basic",
-      iconUrl: "icon-48.png",
-      title: "Extension Active",
-      message: "Chrome Extension is now active on this page",
-      priority: 2
-    });
+    console.log("Set badge for tab:", message.tabId);
   }
+});
+
+// Log when extension is installed or updated
+chrome.runtime.onInstalled.addListener((details) => {
+  console.log("Extension installed/updated:", details.reason);
+});
+
+// Clear badge when switching tabs
+chrome.tabs.onActivated.addListener((activeInfo) => {
+  console.log("Tab activated:", activeInfo);
+  chrome.action.setBadgeText({
+    tabId: activeInfo.tabId,
+    text: ""
+  });
 });
 
 // For HMR in development

@@ -1,127 +1,125 @@
 import { useState } from "react";
 import { Button } from "./components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./components/ui/card";
-import { Badge } from "./components/ui/badge";
-import { ArrowRight, Activity, XCircle } from "lucide-react";
 
 function App() {
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [pageTitle, setPageTitle] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('general');
 
-  const handleAnalyze = async () => {
+  const handleGetTitle = async () => {
     try {
-      setIsAnalyzing(true);
+      setIsLoading(true);
       const [tab] = await chrome.tabs.query({
         active: true,
         currentWindow: true,
       });
 
       if (tab?.id) {
-        await chrome.tabs.sendMessage(tab.id, {
-          type: "ANALYZE_PAGE",
+        // First inject the content script
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['content.js']
         });
-      } else {
-        console.error("No active tab found or no tab ID.");
+
+        // Then send message to get title
+        const response = await chrome.tabs.sendMessage(tab.id, {
+          type: "GET_PAGE_TITLE",
+        });
+        setPageTitle(response.title);
+        
+        // Notify background script
+        chrome.runtime.sendMessage({
+          type: "CONTENT_SCRIPT_LOADED",
+          tabId: tab.id
+        });
       }
     } catch (error) {
-      console.error("Error in popup:", error);
+      console.error("Error getting page title:", error);
+      setPageTitle("Error getting page title");
     } finally {
-      setTimeout(() => setIsAnalyzing(false), 1000);
-    }
-  };
-
-  const handleClear = async () => {
-    try {
-      const [tab] = await chrome.tabs.query({
-        active: true,
-        currentWindow: true,
-      });
-
-      if (tab?.id) {
-        await chrome.tabs.sendMessage(tab.id, {
-          type: "CLEAR_ANALYSIS",
-        });
-      }
-    } catch (error) {
-      console.error("Error clearing analysis:", error);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="w-[350px] h-[500px] bg-background text-foreground antialiased">
-      <div className="flex flex-col h-full">
-        <header className="px-6 py-4 border-b">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-semibold tracking-tight">Chrome Extension</h1>
-              <p className="text-sm text-muted-foreground">Boilerplate v1.0.0</p>
-            </div>
-            <Badge variant="secondary" className="text-xs">
-              Active
-            </Badge>
+    <div className="w-[400px] h-[500px] bg-background text-foreground">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
+            <div className="w-3 h-3 text-white">⚡</div>
           </div>
-        </header>
-
-        <main className="flex-1 overflow-auto p-6 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Current Page Analysis</CardTitle>
-              <CardDescription>
-                Analyze the structure and content of the active tab
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button 
-                className="w-full" 
-                onClick={handleAnalyze}
-                disabled={isAnalyzing}
-              >
-                {isAnalyzing ? (
-                  <>
-                    <Activity className="mr-2 h-4 w-4 animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    Analyze Page
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
-                )}
-              </Button>
-              <Button 
-                className="w-full" 
-                variant="outline" 
-                onClick={handleClear}
-              >
-                <XCircle className="mr-2 h-4 w-4" />
-                Clear Analysis
-              </Button>
-            </CardContent>
-          </Card>
-
-          <div>
-            <h2 className="text-sm font-medium mb-3">Quick Actions</h2>
-            <div className="grid grid-cols-2 gap-2">
-              <Button variant="secondary" className="h-auto py-4 flex flex-col items-center justify-center">
-                <span className="text-xs">View Logs</span>
-              </Button>
-              <Button variant="secondary" className="h-auto py-4 flex flex-col items-center justify-center">
-                <span className="text-xs">Settings</span>
-              </Button>
-            </div>
-          </div>
-        </main>
-
-        <footer className="px-6 py-4 border-t">
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
-              Built with shadcn/ui
-            </p>
-            <Button variant="ghost" size="sm" className="text-xs">
-              Documentation
-            </Button>
-          </div>
-        </footer>
+          <span className="font-semibold">Pullweb</span>
+        </div>
+        <button className="text-gray-500 hover:text-gray-700">×</button>
       </div>
+
+      {/* Welcome Section */}
+      <div className="p-4">
+        <h2 className="text-xl font-semibold mb-2">Welcome</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          Get the content of any web page in a simple and effective way.
+        </p>
+
+        <div className="space-y-4">
+          <div className="text-sm">
+            <h3 className="font-medium mb-2">How to use:</h3>
+            <ul className="space-y-2 text-gray-600">
+              <li>• Go to the webpage that you want to get content</li>
+              <li>• Click on the web page</li>
+              <li>• Wait until the extension displays the required content</li>
+              <li>• Yay! you get the content</li>
+            </ul>
+          </div>
+
+          <Button 
+            onClick={handleGetTitle} 
+            disabled={isLoading}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+          >
+            {isLoading ? "Getting content..." : "Get all content"}
+          </Button>
+        </div>
+      </div>
+
+      {/* Content Display */}
+      {pageTitle && (
+        <div className="p-4 border-t">
+          <div className="flex gap-2 mb-4 border-b">
+            {['General', 'Font', 'Color', 'Assets'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab.toLowerCase())}
+                className={`px-4 py-2 text-sm font-medium ${
+                  activeTab === tab.toLowerCase()
+                    ? 'border-b-2 border-blue-500 text-blue-500'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-4">
+            {activeTab === 'general' && (
+              <div>
+                <h3 className="font-medium mb-2">Page Title:</h3>
+                <p className="text-sm bg-gray-50 p-3 rounded">{pageTitle}</p>
+              </div>
+            )}
+            {activeTab === 'font' && (
+              <div className="text-sm text-gray-600">Font information will be displayed here</div>
+            )}
+            {activeTab === 'color' && (
+              <div className="text-sm text-gray-600">Color information will be displayed here</div>
+            )}
+            {activeTab === 'assets' && (
+              <div className="text-sm text-gray-600">Assets information will be displayed here</div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -5,18 +5,19 @@ A modern Chrome extension boilerplate built with TypeScript, React, and Tailwind
 ## 🚀 Features
 
 - **Modern Tech Stack**
+
   - TypeScript for type safety and better developer experience
   - React for building interactive UI components
   - Tailwind CSS for styling
   - Manifest V3 compliant
-
 - **Core Components**
+
   - Popup interface with analyze and clear functionality
   - Content script for webpage interaction
   - Background service worker for extension management
   - UI components using shadcn/ui
-
 - **Developer Experience**
+
   - Hot Module Replacement (HMR) support
   - Clean architecture with separated concerns
   - Built-in console logging for debugging
@@ -24,6 +25,7 @@ A modern Chrome extension boilerplate built with TypeScript, React, and Tailwind
 ## 🛠️ Technical Architecture
 
 ### 1. Popup (App.tsx)
+
 - Main interface built with React
 - Features:
   - Page analysis trigger
@@ -32,6 +34,7 @@ A modern Chrome extension boilerplate built with TypeScript, React, and Tailwind
   - Integration with Chrome extension APIs
 
 ### 2. Content Script (content.ts)
+
 - Injects into web pages
 - Functionality:
   - Page analysis capabilities
@@ -39,6 +42,7 @@ A modern Chrome extension boilerplate built with TypeScript, React, and Tailwind
   - DOM manipulation and data extraction
 
 ### 3. Background Script (background.ts)
+
 - Service worker implementation
 - Features:
   - Badge management
@@ -46,6 +50,7 @@ A modern Chrome extension boilerplate built with TypeScript, React, and Tailwind
   - Message handling between components
 
 ### 4. Manifest (manifest.json)
+
 - Extension configuration
 - Permissions:
   - activeTab
@@ -85,6 +90,7 @@ A modern Chrome extension boilerplate built with TypeScript, React, and Tailwind
 ## 🔐 Permissions
 
 This extension requires the following permissions:
+
 - `activeTab`: For accessing the current tab's content
 - `scripting`: For injecting content scripts
 - `notifications`: For sending system notifications
