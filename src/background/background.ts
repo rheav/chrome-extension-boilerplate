@@ -1,23 +1,24 @@
 // Log when background script is loaded
 console.log("Background script loaded and running");
 
-// Listen for messages from content script
-chrome.runtime.onMessage.addListener((message) => {
-  console.log("Background received message:", message.type);
+// Handle content script loaded message
+chrome.runtime.onMessage.addListener((message, sender) => {
+  console.log("Background received message:", message, "from:", sender);
   
-  if (message.type === "CONTENT_SCRIPT_LOADED" && message.tabId) {
+  if (message.type === 'CONTENT_SCRIPT_LOADED' && sender.tab?.id) {
+    console.log("Setting badge for tab:", sender.tab.id);
+    
     // Update extension badge
     chrome.action.setBadgeText({
-      tabId: message.tabId,
+      tabId: sender.tab.id,
       text: "OK"
     });
 
     chrome.action.setBadgeBackgroundColor({
       color: "#4CAF50"
     });
-
-    console.log("Set badge for tab:", message.tabId);
   }
+  return true; // Keep message channel open for async response
 });
 
 // Log when extension is installed or updated

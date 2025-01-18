@@ -3,11 +3,7 @@
   "name": "Chrome Extension Boilerplate",
   "version": "1.0.0",
   "description": "A modern Chrome extension boilerplate with TypeScript and React",
-  "permissions": [
-    "activeTab",
-    "scripting",
-    "notifications"
-  ],
+  "permissions": ["activeTab", "scripting", "notifications", "storage"],
   "background": {
     "service_worker": "background.js",
     "type": "module"

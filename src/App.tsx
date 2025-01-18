@@ -1,43 +1,47 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { Button } from "./components/ui/button";
+import { useStore } from "./lib/store";
 
 function App() {
-  const [pageTitle, setPageTitle] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('general');
+  const { 
+    pageTitle, 
+    isLoading, 
+    activeTab, 
+    settings,
+    setPageTitle, 
+    setLoading, 
+    setActiveTab,
+    initializeFromStorage 
+  } = useStore();
+
+  // Initialize settings from storage when component mounts
+  useEffect(() => {
+    initializeFromStorage();
+  }, [initializeFromStorage]);
 
   const handleGetTitle = async () => {
     try {
-      setIsLoading(true);
+      setLoading(true);
       const [tab] = await chrome.tabs.query({
         active: true,
         currentWindow: true,
       });
 
       if (tab?.id) {
-        // First inject the content script
-        await chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          files: ['content.js']
-        });
-
-        // Then send message to get title
+        // Send message to get title
         const response = await chrome.tabs.sendMessage(tab.id, {
-          type: "GET_PAGE_TITLE",
+          type: 'GET_PAGE_TITLE'
         });
-        setPageTitle(response.title);
         
-        // Notify background script
-        chrome.runtime.sendMessage({
-          type: "CONTENT_SCRIPT_LOADED",
-          tabId: tab.id
-        });
+        if (response && response.title) {
+          setPageTitle(response.title);
+        }
       }
     } catch (error) {
       console.error("Error getting page title:", error);
       setPageTitle("Error getting page title");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -106,6 +110,10 @@ function App() {
               <div>
                 <h3 className="font-medium mb-2">Page Title:</h3>
                 <p className="text-sm bg-gray-50 p-3 rounded">{pageTitle}</p>
+                <div className="mt-4">
+                  <h3 className="font-medium mb-2">Theme:</h3>
+                  <p className="text-sm">Current theme: {settings.theme}</p>
+                </div>
               </div>
             )}
             {activeTab === 'font' && (
